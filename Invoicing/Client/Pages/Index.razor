@@ -1,0 +1,37 @@
+﻿@page "/"
+
+@inject HttpClient http
+
+@if (!init)
+{
+    <p>Interrogation du serveur...</p>
+}
+else
+{
+
+    <h1>Your activity</h1>
+
+    <h2>Sales revenues : <strong>@SalesRevenue €</strong></h2>
+
+    <h2>Outstanding : <strong>@Outstanding €</strong></h2>
+}
+
+@code{
+
+    private string SalesRevenue;
+
+    private string Outstanding;
+
+    private bool init = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SalesRevenue = await http.GetStringAsync("api/invoices/dashboard/sales");
+
+        Outstanding = await http.GetStringAsync("api/invoices/dashboard/outstanding");
+
+        init = true;
+
+    }
+
+}

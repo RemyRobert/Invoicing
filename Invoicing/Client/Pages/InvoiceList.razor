@@ -1,0 +1,96 @@
+﻿@page "/invoices"
+
+@inject HttpClient http
+
+<h1>Invoices</h1>
+
+@if (allInvoices == null)
+{
+    <p>Interrogation du serveur...</p>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var invoice in allInvoices)
+            {
+                <tr class='table-@ColorFromInvoiceState(invoice)'>
+                    <td>@invoice.Reference</td>
+                    <td>@invoice.Created.ToShortDateString()</td>
+                    <td>@invoice.Customer</td>
+                    <td align="right">@invoice.Amount.ToString("€ 0.00")</td>
+                    <td align="right">@invoice.Paid.ToString("€ 0.00")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <EditForm Model="@newInvoice" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputText @bind-Value="newInvoice.Reference" />
+        <InputText @bind-Value="newInvoice.Customer" />
+        <InputNumber @bind-Value="newInvoice.Amount" />
+        <InputDate @bind-Value="newInvoice.Created" />
+
+        <button type="submit">Envoyer</button>
+    </EditForm>
+
+}
+@code {
+
+    static string ColorFromInvoiceState(Invoice invoice)
+    {
+        if (invoice.IsLate)
+        {
+            return "danger";
+        }
+        else if (invoice.IsPaid)
+        {
+            return "success";
+        }
+        else
+        {
+            return "default";
+        }
+    }
+
+    private IEnumerable<Invoice> allInvoices = null;
+
+    private Invoice newInvoice = new Invoice();
+    private EditContext editContext;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allInvoices = await http.GetFromJsonAsync<IEnumerable<Invoice>>("api/invoices");
+
+        editContext = new EditContext(newInvoice);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var isValid = editContext.Validate();
+
+        if (isValid)
+        {
+            await http.PostAsJsonAsync<Invoice>("api/invoices", newInvoice);
+        }
+        else
+        {
+
+        }
+
+    }
+
+}
