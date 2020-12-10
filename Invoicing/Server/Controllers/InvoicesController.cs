@@ -42,8 +42,8 @@ namespace Invoicing.Server.Controllers
             }
         }
 
-        [HttpGet("{long:id}")]
-        public ActionResult<Invoice> GetById(long id)
+        [HttpGet("{id:int}")]
+        public ActionResult<Invoice> GetById(int id)
         {
             var invoice = _data.AllInvoices.Where(inv => inv.Id == id).FirstOrDefault();
 
