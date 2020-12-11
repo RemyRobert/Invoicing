@@ -77,7 +77,7 @@ namespace Invoicing.Server.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Invoice> Post([FromQuery] Invoice newInvoice)
+        public ActionResult<Invoice> Post([FromBody] Invoice newInvoice)
         {
             if (ModelState.IsValid)
             {
